@@ -37,10 +37,16 @@ func New() (*App, error) {
 	return a, nil
 }
 
-func (a *App) Run(deviceTrackerService *device_tracker_service.Implementation) error {
+type Service interface {
+	RegisterGRPC(*grpc.Server)
+}
+
+func (a *App) Run(impl ...Service) error {
 	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(mw.LogResponseInterceptor))
 
-	deviceTrackerService.RegisterGRPC(a.grpcServer)
+	for _, i := range impl {
+		i.RegisterGRPC(a.grpcServer)
+	}
 	reflection.Register(a.grpcServer)
 
 	go func() {
