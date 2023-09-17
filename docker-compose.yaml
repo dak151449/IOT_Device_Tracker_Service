@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    env_file: .env
+#    restart: always
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+
+  postgres:
+    env_file: .env
+    image: postgres:13
+    ports:
+      - "6543:${POSTGRES_PORT}"
