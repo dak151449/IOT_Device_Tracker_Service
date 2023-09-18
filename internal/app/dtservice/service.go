@@ -1,4 +1,4 @@
-package dt_service
+package dtservice
 
 import (
 	"google.golang.org/grpc"

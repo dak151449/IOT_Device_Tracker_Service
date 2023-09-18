@@ -5,6 +5,6 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN go build -o bin/dt_service ./cmd/dt_service/main.go
+RUN go build -o bin/dtservice ./cmd/dtservice/main.go
 
 CMD ["./bin/device-tracker-service"]
