@@ -1,8 +1,8 @@
-package device_tracker_service
+package dt_service
 
 import (
 	"google.golang.org/grpc"
-	"proj/pkg/api"
+	"iot-device-tracker-service/pkg/api"
 )
 
 type Implementation struct {

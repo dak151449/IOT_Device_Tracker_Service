@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	device_tracker_service "proj/internal/app/device-tracker-service"
-	"proj/internal/pkg/app"
+	"iot-device-tracker-service/internal/app/dt_service"
+	"iot-device-tracker-service/internal/pkg/app"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 		log.Fatal().Err(err).Msg("can't create app")
 	}
 
-	if err = a.Run(device_tracker_service.NewDeviceTrackerService()); err != nil {
+	if err = a.Run(dt_service.NewDeviceTrackerService()); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
 }

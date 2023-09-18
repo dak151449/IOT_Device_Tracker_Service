@@ -5,21 +5,19 @@ import (
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"iot-device-tracker-service/internal/config"
+	"iot-device-tracker-service/internal/pkg/mw"
 	"net"
 	"os"
 	"os/signal"
-	device_tracker_service "proj/internal/app/device-tracker-service"
-	"proj/internal/config"
-	"proj/internal/pkg/mw"
 	"strings"
 	"syscall"
 )
 
 type App struct {
-	grpcListener         net.Listener
-	closer               chan struct{}
-	grpcServer           *grpc.Server
-	deviceTrackerService *device_tracker_service.Implementation
+	grpcListener net.Listener
+	closer       chan struct{}
+	grpcServer   *grpc.Server
 }
 
 func New() (*App, error) {

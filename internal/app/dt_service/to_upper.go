@@ -1,10 +1,10 @@
-package device_tracker_service
+package dt_service
 
 import (
 	"context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"proj/pkg/api"
+	"iot-device-tracker-service/pkg/api"
 	"strings"
 )
 
