@@ -10,7 +10,7 @@ func LogResponseInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 	resp, err := handler(ctx, req)
 
 	if err != nil {
-		log.Error().Err(err).Msgf("gRPC error in method %s", info.FullMethod)
+		log.Info().Err(err).Msgf("gRPC error in method %s", info.FullMethod)
 	} else {
 		log.Debug().Msgf("gRPC method %s executed successfully", info.FullMethod)
 	}

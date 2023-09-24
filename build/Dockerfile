@@ -7,4 +7,4 @@ COPY . .
 RUN go mod download
 RUN go build -o bin/dtservice ./cmd/dtservice/main.go
 
-CMD ["./bin/device-tracker-service"]
+CMD ["./bin/dtservice"]
