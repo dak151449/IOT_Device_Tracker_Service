@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -12,6 +13,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type App struct {
@@ -23,7 +25,7 @@ type App struct {
 func New() (*App, error) {
 	a := &App{}
 
-	lsn, err := net.Listen("tcp", fmt.Sprintf(":%v", config.GetValue(config.GrpcPORT)))
+	lsn, err := net.Listen("tcp", fmt.Sprintf(":%v", config.GetStringValue(config.GrpcPORT)))
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +51,7 @@ func (a *App) Run(impl ...Service) error {
 
 	go func() {
 		if err := a.grpcServer.Serve(a.grpcListener); err != nil {
-			log.Error().Err(err).Msg("gRPC server")
+			log.Error().Err(err).Msg("gRPC server, error when starting")
 			a.ShutDown()
 		}
 	}()
@@ -78,11 +80,28 @@ func (a *App) InitCloser(sig ...os.Signal) {
 	}
 }
 
+func (a *App) Wait() {
+	<-a.closer
+}
+
 func (a *App) ShutDown() {
 	defer close(a.closer)
 	log.Info().Msg("shutting down...")
-}
 
-func (a *App) Wait() {
-	<-a.closer
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	done := make(chan struct{})
+	go func() {
+		a.grpcServer.GracefulStop()
+		close(done)
+	}()
+	select {
+	case <-done:
+		log.Info().Msg("gRPC server gracefully stopped")
+	case <-ctx.Done():
+		err := fmt.Errorf("error when shutting down: %w", ctx.Err())
+		a.grpcServer.Stop()
+		log.Error().Err(err).Msg("gRPC server force stopped")
+	}
 }
