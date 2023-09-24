@@ -1,0 +1,38 @@
+run:
+  concurrency: 8
+  timeout: 10m
+  skip-dirs:
+    - bin
+  skip-files:
+    - \.pb\.go$
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  goconst:
+    min-len:         2
+    min-occurrences: 2
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goconst
+    - goimports
+    - gosec
+    - govet
+    - ineffassign
+    - megacheck
+    - revive
+    - typecheck
+    - unused
+
+issues:
+#  exclude-use-default: false
+  exclude:
+    - don't use an underscore in package name

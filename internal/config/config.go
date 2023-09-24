@@ -2,10 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
+
+	"github.com/caarlos0/env/v6"
+	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 type configKey string
@@ -13,6 +15,14 @@ type configKey string
 const (
 	GrpcPORT = configKey("GRPC_PORT")
 )
+
+type PostgresConfig struct {
+	PostgresUser     string `env:"POSTGRES_USER"`
+	PostgresPassword string `env:"POSTGRES_PASSWORD"`
+	PostgresDb       string `env:"POSTGRES_DB"`
+	PostgresPort     int    `env:"POSTGRES_PORT"`
+	PostgresDbHost   string `env:"POSTGRES_DB_HOST"`
+}
 
 func init() {
 	_, err := os.Stat(".env")
@@ -52,4 +62,13 @@ func GetIntValue(key configKey) int {
 	}
 
 	return intValue
+}
+
+func GetPostgresConfig() *PostgresConfig {
+	cfg := &PostgresConfig{}
+	if err := env.Parse(cfg); err != nil {
+		log.Warn().Err(err).Msgf("unable to parse PostgresConfig")
+	}
+
+	return cfg
 }

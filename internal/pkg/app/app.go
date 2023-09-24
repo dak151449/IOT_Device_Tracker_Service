@@ -3,17 +3,18 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"iot-device-tracker-service/internal/config"
-	"iot-device-tracker-service/internal/pkg/mw"
+	"iot-device-tracker-service/internal/pkg/app/mw"
 	"net"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type App struct {

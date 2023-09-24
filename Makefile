@@ -12,6 +12,11 @@ generate:
 			--go-grpc_out=./pkg --go-grpc_opt=paths=source_relative \
  			api/device-tracker.proto
 
+.PHONY: lint
+lint:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+	golangci-lint run ./...
+
 .PHONY: build
 build:
 	go mod download
