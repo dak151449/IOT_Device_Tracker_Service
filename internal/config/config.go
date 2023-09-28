@@ -20,8 +20,8 @@ type PostgresConfig struct {
 	PostgresUser     string `env:"POSTGRES_USER"`
 	PostgresPassword string `env:"POSTGRES_PASSWORD"`
 	PostgresDb       string `env:"POSTGRES_DB"`
-	PostgresPort     int    `env:"POSTGRES_PORT"`
 	PostgresDbHost   string `env:"POSTGRES_DB_HOST"`
+	PostgresPort     int    `env:"POSTGRES_PORT"`
 }
 
 func init() {

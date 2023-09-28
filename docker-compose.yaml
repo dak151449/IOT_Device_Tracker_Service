@@ -3,7 +3,8 @@ version: '3.8'
 services:
   app:
     env_file: .env
-#    restart: always
+    environment:
+      - POSTGRES_DB_HOST=postgres
     build:
       context: .
       dockerfile: build/Dockerfile
@@ -16,4 +17,4 @@ services:
     env_file: .env
     image: postgres:13
     ports:
-      - "6543:${POSTGRES_PORT}"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
