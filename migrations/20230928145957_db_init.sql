@@ -6,9 +6,6 @@ CREATE TABLE Users (
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
     email TEXT NOT NULL,
-    last_login TIMESTAMP NULL,
-    is_superuser BOOLEAN NULL DEFAULT FALSE,
-    is_staff BOOLEAN NULL DEFAULT FALSE,
     info TEXT NULL DEFAULT 'Not specified'
 );
 
@@ -17,7 +14,7 @@ CREATE TABLE DeviceGroups (
     name TEXT NOT NULL,
     user_id INT NOT NULL,
     status TEXT NOT NULL,
-    creation_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     description TEXT NULL DEFAULT 'Not specified',
 
 
@@ -31,7 +28,7 @@ CREATE TABLE Devices (
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     device_group_id INT NOT NULL,
-    creation_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     authentication_token TEXT NULL,
     status TEXT NOT NULL,
     last_activity_time TIMESTAMP NULL,
@@ -50,8 +47,7 @@ CREATE TABLE Devices (
 
 CREATE TABLE Parameters (
     id SERIAL PRIMARY KEY NOT NULL,
-    parameter_name TEXT NOT NULL,
-    parameter_symbol TEXT NOT NULL,
+    name TEXT NOT NULL,
     device_id INT NOT NULL,
 
 
