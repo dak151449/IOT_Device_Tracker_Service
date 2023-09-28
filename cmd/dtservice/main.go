@@ -27,6 +27,11 @@ func main() {
 
 	dao := dtservice_db.NewDAO(db)
 
+	err = dao.Test(ctx)
+	if err != nil {
+		log.Fatal().Err(err).Msg("dao err")
+	}
+
 	if err = a.Run(dtservice.NewDeviceTrackerService(dao)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
