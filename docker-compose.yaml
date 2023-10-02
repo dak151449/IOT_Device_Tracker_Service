@@ -9,7 +9,8 @@ services:
       context: .
       dockerfile: build/Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "${GRPC_PORT}:${GRPC_PORT}"
 
@@ -18,3 +19,7 @@ services:
     image: postgres:13
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 3s
+      retries: 3
