@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package device_tracker;
+option go_package = "github.com/dak151449/IOT_Device_Tracker_Service/pkg/device_tracker;dtapi";
+
+import "google/protobuf/timestamp.proto";
+
+service DeviceTrackerService {
+	rpc GetDeviceGroups(GetDeviceGroupsRequest) returns (GetDeviceGroupsResponse) {}
+	rpc GetDevicesFromGroup(GetDevicesFromGroupRequest) returns (GetDevicesFromGroupResponse) {}
+}
+
+message GetDeviceGroupsRequest {
+	int64 user_id = 1;
+}
+
+message DeviceGroupData {
+	int64 id = 1;
+	string name = 2;
+	string status = 3;
+	google.protobuf.Timestamp created_at = 4;
+	string description = 5;
+}
+
+message GetDeviceGroupsResponse {
+	repeated DeviceGroupData groups = 1;
+}
+
+message GetDevicesFromGroupRequest {
+	int64 group_id = 1;
+}
+
+message DeviceData {
+	int64 id = 1;
+	string name = 2;
+	string status = 3;
+	google.protobuf.Timestamp created_at = 4;
+	string description = 5;
+}
+
+message GetDevicesFromGroupResponse {
+	repeated DeviceData devices = 1;
+}

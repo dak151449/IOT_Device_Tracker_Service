@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE Users (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY NOT NULL,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE Users (
     info TEXT NULL DEFAULT 'Not specified'
 );
 
-CREATE TABLE DeviceGroups (
+CREATE TABLE device_groups (
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     user_id INT NOT NULL,
@@ -18,13 +18,13 @@ CREATE TABLE DeviceGroups (
     description TEXT NULL DEFAULT 'Not specified',
 
 
-    CONSTRAINT FK_DeviceGroups_Users FOREIGN KEY (user_id)
-    REFERENCES Users(id)
+    CONSTRAINT FK_device_groups_users FOREIGN KEY (user_id)
+    REFERENCES users(id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
 
-CREATE TABLE Devices (
+CREATE TABLE devices (
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     device_group_id INT NOT NULL,
@@ -39,25 +39,25 @@ CREATE TABLE Devices (
     description TEXT NULL DEFAULT 'Not specified',
 
 
-    CONSTRAINT FK_Devices_DeviceGroups FOREIGN KEY (device_group_id)
-    REFERENCES DeviceGroups(id)
+    CONSTRAINT FK_devices_device_groups FOREIGN KEY (device_group_id)
+    REFERENCES device_groups(id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
 
-CREATE TABLE Parameters (
+CREATE TABLE parameters (
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     device_id INT NOT NULL,
 
 
-    CONSTRAINT FK_Parameters_Devices FOREIGN KEY (device_id)
-    REFERENCES Devices(id)
+    CONSTRAINT FK_parameters_devices FOREIGN KEY (device_id)
+    REFERENCES devices(id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
 
-CREATE TABLE DataFrames (
+CREATE TABLE data_frames (
     id SERIAL PRIMARY KEY NOT NULL,
     parameter_id INT NOT NULL,
     event_time TIMESTAMP NOT NULL,
@@ -65,13 +65,13 @@ CREATE TABLE DataFrames (
     description TEXT NULL DEFAULT 'Not specified',
 
 
-    CONSTRAINT FK_DataFrames_Parameters FOREIGN KEY (parameter_id)
+    CONSTRAINT FK_data_frames_parameters FOREIGN KEY (parameter_id)
     REFERENCES Parameters(id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
 
-CREATE TABLE SentData (
+CREATE TABLE sent_data (
     id SERIAL PRIMARY KEY NOT NULL,
     parameter_id INT NOT NULL,
     event_time TIMESTAMP NOT NULL,
@@ -79,18 +79,18 @@ CREATE TABLE SentData (
     description TEXT NULL DEFAULT 'Not specified',
 
 
-    CONSTRAINT FK_SentData_Parameters FOREIGN KEY (parameter_id)
-    REFERENCES Parameters(id)
+    CONSTRAINT FK_sent_data_parameters FOREIGN KEY (parameter_id)
+    REFERENCES parameters(id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE SentData;
-DROP TABLE DataFrames;
-DROP TABLE Parameters;
-DROP TABLE Devices;
-DROP TABLE DeviceGroups;
-DROP TABLE Users;
+DROP TABLE sent_data;
+DROP TABLE data_frames;
+DROP TABLE parameters;
+DROP TABLE devices;
+DROP TABLE device_groups;
+DROP TABLE users;
 -- +goose StatementEnd

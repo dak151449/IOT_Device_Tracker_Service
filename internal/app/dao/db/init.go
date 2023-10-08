@@ -1,10 +1,10 @@
-package dtservice_db
+package appdb
 
 import (
 	"context"
 	"fmt"
 	"iot-device-tracker-service/internal/config"
-	"iot-device-tracker-service/internal/db"
+	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )

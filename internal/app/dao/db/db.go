@@ -1,7 +1,7 @@
-package dtservice_db
+package appdb
 
 import (
-	"iot-device-tracker-service/internal/db"
+	"iot-device-tracker-service/internal/pkg/db"
 )
 
 type DAO struct {

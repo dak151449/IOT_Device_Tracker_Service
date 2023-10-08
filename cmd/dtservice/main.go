@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	dtservice_db "iot-device-tracker-service/internal/app/dao/db"
+	app_db "iot-device-tracker-service/internal/app/dao/db"
 	"iot-device-tracker-service/internal/app/dtservice"
 	"iot-device-tracker-service/internal/pkg/app"
 
@@ -19,13 +19,13 @@ func main() {
 		log.Fatal().Err(err).Msg("can't create app")
 	}
 
-	db, err := dtservice_db.Connect(ctx)
+	db, err := app_db.Connect(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't connect to postgres")
 	}
 	defer db.GetPool(ctx).Close()
 
-	dao := dtservice_db.NewDAO(db)
+	dao := app_db.NewDAO(db)
 
 	if err = a.Run(dtservice.NewDeviceTrackerService(dao)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
