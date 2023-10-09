@@ -2,7 +2,7 @@ package dtservice
 
 import (
 	"database/sql"
-	"iot-device-tracker-service/internal/app/dao"
+	dao "iot-device-tracker-service/internal/app/dao/dtservice"
 	dtapi "iot-device-tracker-service/pkg/api/device_tracker"
 
 	"google.golang.org/grpc"

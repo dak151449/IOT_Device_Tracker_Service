@@ -1,8 +1,8 @@
-package appdb
+package dtservice_db
 
 import (
 	"context"
-	"iot-device-tracker-service/internal/app/dao"
+	dao "iot-device-tracker-service/internal/app/dao/dtservice"
 	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/Masterminds/squirrel"

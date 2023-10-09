@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	app_db "iot-device-tracker-service/internal/app/dao/db"
+	dtservice_db "iot-device-tracker-service/internal/app/dao/dtservice/db"
 	"iot-device-tracker-service/internal/app/dtservice"
 	"iot-device-tracker-service/internal/pkg/app"
+	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -19,13 +20,13 @@ func main() {
 		log.Fatal().Err(err).Msg("can't create app")
 	}
 
-	db, err := app_db.Connect(ctx)
+	db, err := db.Connect(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't connect to postgres")
 	}
 	defer db.GetPool(ctx).Close()
 
-	dao := app_db.NewDAO(db)
+	dao := dtservice_db.NewDAO(db)
 
 	if err = a.Run(dtservice.NewDeviceTrackerService(dao)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")

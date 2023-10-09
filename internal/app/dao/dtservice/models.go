@@ -1,4 +1,4 @@
-package dao
+package dtservice_dao
 
 import "database/sql"
 
