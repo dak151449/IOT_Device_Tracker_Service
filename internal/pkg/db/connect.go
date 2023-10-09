@@ -1,10 +1,9 @@
-package dtservice_db
+package db
 
 import (
 	"context"
 	"fmt"
 	"iot-device-tracker-service/internal/config"
-	"iot-device-tracker-service/internal/db"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -15,12 +14,12 @@ func getPostgresDSN() string {
 		cfg.PostgresDbHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDb)
 }
 
-func Connect(ctx context.Context) (*db.PgxDB, error) {
+func Connect(ctx context.Context) (*PgxDB, error) {
 	postgresDSN := getPostgresDSN()
 	pool, err := pgxpool.Connect(ctx, postgresDSN)
 	if err != nil {
 		return nil, err
 	}
 
-	return db.NewDatabase(pool), nil
+	return NewDatabase(pool), nil
 }

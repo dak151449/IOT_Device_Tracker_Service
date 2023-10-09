@@ -5,7 +5,7 @@ ifeq ($(POSTGRES_SETUP),)
 	POSTGRES_SETUP := "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) host=localhost port=$(POSTGRES_PORT) sslmode=disable"
 endif
 
-.PHONY: migration-create migrate-up migrate_down
+.PHONY: migration-create migrate-up migrate_down test-up test-down
 migration-create:
 	goose -dir $(MIGRATION_FOLDER) create "$(name)" sql
 
@@ -15,13 +15,19 @@ migrate-up:
 migrate-down:
 	goose -dir $(MIGRATION_FOLDER) postgres $(POSTGRES_SETUP) down
 
+test-up:
+	goose -dir test postgres $(POSTGRES_SETUP) up
+
+test-down:
+	goose -dir test postgres $(POSTGRES_SETUP) down
+
 
 .PHONY: generate
 generate:
 	mkdir -p pkg
 	protoc  --go_out=./pkg --go_opt=paths=source_relative \
 			--go-grpc_out=./pkg --go-grpc_opt=paths=source_relative \
- 			api/device-tracker.proto
+ 			api/**/*.proto
 
 .PHONY: lint
 lint:
