@@ -30,12 +30,20 @@ message GetDevicesFromGroupRequest {
 	int64 group_id = 1;
 }
 
+message DataFrameData {
+	int64 id = 1;
+	google.protobuf.Timestamp event_time = 2;
+	string result = 3;
+	string description = 4;
+}
+
 message DeviceData {
 	int64 id = 1;
 	string name = 2;
 	string status = 3;
 	google.protobuf.Timestamp created_at = 4;
 	string description = 5;
+	repeated DataFrameData data_frames = 6;
 }
 
 message GetDevicesFromGroupResponse {
