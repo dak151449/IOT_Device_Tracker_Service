@@ -2,9 +2,10 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     id SERIAL PRIMARY KEY NOT NULL,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE ,
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
+    role INT NOT NULL,
     email TEXT NOT NULL,
     info TEXT NULL DEFAULT 'Not specified'
 );

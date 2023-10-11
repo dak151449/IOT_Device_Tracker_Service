@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -71,4 +72,14 @@ func GetPostgresConfig() *PostgresConfig {
 	}
 
 	return cfg
+}
+
+func GetTokenDuration() (time.Duration, error) {
+	tokenTime := os.Getenv("TOKEN_DURATION")
+	TokenDuration, err := time.ParseDuration(tokenTime)
+	if err != nil {
+		log.Warn().Err(err).Msgf("unable to parse TOKEN_DURATION")
+		return time.Duration(0), err
+	}
+	return TokenDuration, nil
 }

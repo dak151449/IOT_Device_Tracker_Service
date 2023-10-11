@@ -21,7 +21,6 @@ test-up:
 test-down:
 	goose -dir test postgres $(POSTGRES_SETUP) down
 
-
 .PHONY: generate
 generate:
 	mkdir -p pkg
