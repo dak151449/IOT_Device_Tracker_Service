@@ -7,7 +7,6 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/georgysavva/scany v1.2.1
-	github.com/golang/protobuf v1.5.2
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/joho/godotenv v1.4.0
@@ -19,6 +18,7 @@ require (
 )
 
 require (
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

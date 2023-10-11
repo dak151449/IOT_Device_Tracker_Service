@@ -1,31 +1,20 @@
 package auth
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 const (
-	SecretKey = "secretkey"
+	DefaultSecretKey = "secretkey"
 )
 
 type JWTManager struct {
 	secretKey     string
 	tokenDuration time.Duration
-}
-
-func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
-	return &JWTManager{secretKey: secretKey,
-		tokenDuration: tokenDuration}
-}
-
-func (manager *JWTManager) Generate(c jwt.Claims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
-
-	return token.SignedString([]byte(manager.secretKey))
 }
 
 type UserClaims struct {
@@ -34,27 +23,36 @@ type UserClaims struct {
 	Role     Role   `json:"role"`
 }
 
-func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
+func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
+	return &JWTManager{secretKey: secretKey,
+		tokenDuration: tokenDuration}
+}
+
+func (m *JWTManager) Generate(c jwt.Claims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+
+	return token.SignedString([]byte(m.secretKey))
+}
+
+func (m *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		accessToken,
 		&UserClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
-				log.Warn().Msgf("unexpected token signing method")
 				return nil, errors.New("unexpected token signing method")
 			}
-			return []byte(manager.secretKey), nil
+			return []byte(m.secretKey), nil
 		})
 	if err != nil {
-		log.Warn().Err(err).Msgf("invalid token")
-		return nil, errors.New("invalid token	" + err.Error())
+		return nil, fmt.Errorf("invalid token %w", err)
 	}
 
 	claims, ok := token.Claims.(*UserClaims)
 	if !ok {
-		log.Warn().Msgf("invalid token")
-		return nil, errors.New("invalid token	")
+		return nil, errors.New("invalid token")
 	}
+
 	return claims, nil
 }

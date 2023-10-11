@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"iot-device-tracker-service/internal/config"
+	"iot-device-tracker-service/internal/pkg/config"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )

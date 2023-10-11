@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package auth_service;
-option go_package = "github.com/dak151449/IOT_Device_Tracker_Service/pkg/auth_service;dtapi";
+option go_package = "github.com/dak151449/IOT_Device_Tracker_Service/pkg/auth_service;authapi";
 
 message LoginRequest {
   string username = 1;
@@ -18,6 +18,7 @@ message RegistrationRequest {
 }
 
 message EmptyResponse {}
+
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse) {};
   rpc Registration(RegistrationRequest) returns (EmptyResponse) {};

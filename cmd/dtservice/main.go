@@ -2,19 +2,18 @@ package main
 
 import (
 	"context"
+	"iot-device-tracker-service/internal/app/authservice"
+	auth_db "iot-device-tracker-service/internal/app/dao/authservice/db"
+	dt_db "iot-device-tracker-service/internal/app/dao/dtservice/db"
+	"iot-device-tracker-service/internal/app/dtservice"
+	"iot-device-tracker-service/internal/pkg/app"
+	"iot-device-tracker-service/internal/pkg/auth"
+	"iot-device-tracker-service/internal/pkg/config"
+	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
-
-	"iot-device-tracker-service/internal/app/authservice"
-	authservice_db "iot-device-tracker-service/internal/app/dao/authservice/db"
-	dtservice_db "iot-device-tracker-service/internal/app/dao/dtservice/db"
-	"iot-device-tracker-service/internal/app/dtservice"
-	"iot-device-tracker-service/internal/config"
-	"iot-device-tracker-service/internal/pkg/app"
-	"iot-device-tracker-service/internal/pkg/auth"
-	"iot-device-tracker-service/internal/pkg/db"
 )
 
 func accessibleRoles() map[string]auth.Role {
@@ -41,21 +40,21 @@ func main() {
 	}
 	defer db.GetPool(ctx).Close()
 
-	dtserviceDao := dtservice_db.NewDAO(db)
-	authserviceDao := authservice_db.NewDAO(db)
+	dtDao := dt_db.NewDAO(db)
+	authDao := auth_db.NewDAO(db)
 
-	tokenDuration, err := config.GetTokenDuration()
+	jwtTokenDuration, err := config.GetJWTTokenDuration()
 	if err != nil {
-		log.Fatal().Err(err).Msg("can't parse tokenDuration")
+		log.Fatal().Err(err).Msg("can't parse jwtTokenDuration")
 	}
 
-	jwtManager := auth.NewJWTManager(auth.SecretKey, tokenDuration)
-	AuthServer := authservice.NewAuthServer(authserviceDao, jwtManager)
-	authIntercepter := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
+	jwtManager := auth.NewJWTManager(auth.DefaultSecretKey, jwtTokenDuration)
+	authInterceptor := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
 
-	options := []grpc.UnaryServerInterceptor{authIntercepter.Unary()}
-
-	if err = a.Run(options, dtservice.NewDeviceTrackerService(dtserviceDao), AuthServer); err != nil {
+	if err = a.Run(
+		[]grpc.UnaryServerInterceptor{authInterceptor.Unary()},
+		dtservice.NewDeviceTrackerService(dtDao),
+		authservice.NewAuthService(authDao, jwtManager)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
 }

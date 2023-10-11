@@ -14,7 +14,8 @@ import (
 type configKey string
 
 const (
-	GrpcPORT = configKey("GRPC_PORT")
+	GrpcPORT         = configKey("GRPC_PORT")
+	JWTTokenDuration = configKey("JWT_TOKEN_DURATION")
 )
 
 type PostgresConfig struct {
@@ -74,12 +75,12 @@ func GetPostgresConfig() *PostgresConfig {
 	return cfg
 }
 
-func GetTokenDuration() (time.Duration, error) {
-	tokenTime := os.Getenv("TOKEN_DURATION")
-	TokenDuration, err := time.ParseDuration(tokenTime)
+func GetJWTTokenDuration() (time.Duration, error) {
+	tokenDuration := os.Getenv(string(JWTTokenDuration))
+	tokenDurationTime, err := time.ParseDuration(tokenDuration)
 	if err != nil {
-		log.Warn().Err(err).Msgf("unable to parse TOKEN_DURATION")
 		return time.Duration(0), err
 	}
-	return TokenDuration, nil
+
+	return tokenDurationTime, nil
 }
