@@ -10,9 +10,7 @@ service DeviceTrackerService {
 	rpc GetDevicesFromGroup(GetDevicesFromGroupRequest) returns (GetDevicesFromGroupResponse) {}
 }
 
-message GetDeviceGroupsRequest {
-	int64 user_id = 1;
-}
+message GetDeviceGroupsRequest {}
 
 message DeviceGroupData {
 	int64 id = 1;

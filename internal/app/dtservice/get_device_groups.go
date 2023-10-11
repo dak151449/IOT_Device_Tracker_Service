@@ -8,8 +8,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (i *Implementation) GetDeviceGroups(ctx context.Context, req *dtapi.GetDeviceGroupsRequest) (*dtapi.GetDeviceGroupsResponse, error) {
-	groups, err := i.dao.GetGroupsByUserID(ctx, req.GetUserId())
+func (i *Implementation) GetDeviceGroups(ctx context.Context, _ *dtapi.GetDeviceGroupsRequest) (*dtapi.GetDeviceGroupsResponse, error) {
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	groups, err := i.dao.GetGroupsByUserID(ctx, userID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

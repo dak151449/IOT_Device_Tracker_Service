@@ -19,6 +19,7 @@ type JWTManager struct {
 
 type UserClaims struct {
 	jwt.StandardClaims
+	UserID   int64  `json:"id"`
 	UserName string `json:"username"`
 	Role     Role   `json:"role"`
 }

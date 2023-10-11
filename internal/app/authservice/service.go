@@ -35,6 +35,7 @@ func isCorrectPassword(user *dao.User, password string) bool {
 
 func getClaims(user *dao.User) jwt.Claims {
 	return &auth.UserClaims{
+		UserID:   user.ID,
 		UserName: user.UserName,
 		Role:     auth.Role(user.Role),
 	}

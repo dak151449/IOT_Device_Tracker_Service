@@ -12,6 +12,10 @@ import (
 
 type Role int
 
+type contextKey string
+
+const UserIDKey = contextKey("userID")
+
 const (
 	Admin Role = iota
 	User
@@ -37,41 +41,43 @@ func (i *Interceptor) Unary() grpc.UnaryServerInterceptor {
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		log.Info().Msgf("--> unary interceptor: %s", info.FullMethod)
-		err := i.authorize(ctx, info.FullMethod)
+		userID, err := i.authorize(ctx, info.FullMethod)
 		if err != nil {
 			return nil, err
 		}
+
+		ctx = context.WithValue(ctx, UserIDKey, userID)
 
 		return handler(ctx, req)
 	}
 }
 
-func (i *Interceptor) authorize(ctx context.Context, method string) error {
+func (i *Interceptor) authorize(ctx context.Context, method string) (int64, error) {
 	accessibleRole, ok := i.accessibleRoles[method]
 	if !ok {
 		// everyone can access
-		return nil
+		return 0, nil
 	}
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return status.Errorf(codes.Unauthenticated, "metadata is not provided")
+		return 0, status.Errorf(codes.Unauthenticated, "metadata is not provided")
 	}
 
 	values := md["authorization"]
 	if len(values) == 0 {
-		return status.Errorf(codes.Unauthenticated, "authorization token is not provided")
+		return 0, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
 	}
 
 	accessToken := values[0]
 	claims, err := i.jwtManager.Verify(accessToken)
 	if err != nil {
-		return status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
+		return 0, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 	}
 
 	if accessibleRole >= claims.Role {
-		return nil
+		return claims.UserID, nil
 	}
 
-	return status.Error(codes.PermissionDenied, "no permission to access this RPC")
+	return 0, status.Error(codes.PermissionDenied, "no permission to access this RPC")
 }
