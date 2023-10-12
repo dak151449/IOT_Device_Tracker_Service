@@ -15,7 +15,7 @@ CREATE TABLE device_groups (
     name TEXT NOT NULL,
     user_id INT NOT NULL,
     status TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     description TEXT NULL DEFAULT 'Not specified',
 
 
@@ -29,7 +29,7 @@ CREATE TABLE devices (
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     device_group_id INT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     authentication_token TEXT NULL,
     status TEXT NOT NULL,
     last_activity_time TIMESTAMP NULL,

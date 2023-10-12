@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type DeviceTrackerServiceClient interface {
 	GetDeviceGroups(ctx context.Context, in *GetDeviceGroupsRequest, opts ...grpc.CallOption) (*GetDeviceGroupsResponse, error)
 	GetDevicesFromGroup(ctx context.Context, in *GetDevicesFromGroupRequest, opts ...grpc.CallOption) (*GetDevicesFromGroupResponse, error)
+	CreateDeviceGroup(ctx context.Context, in *CreateDeviceGroupRequest, opts ...grpc.CallOption) (*CreateDeviceGroupResponce, error)
 }
 
 type deviceTrackerServiceClient struct {
@@ -52,12 +53,22 @@ func (c *deviceTrackerServiceClient) GetDevicesFromGroup(ctx context.Context, in
 	return out, nil
 }
 
+func (c *deviceTrackerServiceClient) CreateDeviceGroup(ctx context.Context, in *CreateDeviceGroupRequest, opts ...grpc.CallOption) (*CreateDeviceGroupResponce, error) {
+	out := new(CreateDeviceGroupResponce)
+	err := c.cc.Invoke(ctx, "/device_tracker.DeviceTrackerService/CreateDeviceGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DeviceTrackerServiceServer is the server API for DeviceTrackerService service.
 // All implementations must embed UnimplementedDeviceTrackerServiceServer
 // for forward compatibility
 type DeviceTrackerServiceServer interface {
 	GetDeviceGroups(context.Context, *GetDeviceGroupsRequest) (*GetDeviceGroupsResponse, error)
 	GetDevicesFromGroup(context.Context, *GetDevicesFromGroupRequest) (*GetDevicesFromGroupResponse, error)
+	CreateDeviceGroup(context.Context, *CreateDeviceGroupRequest) (*CreateDeviceGroupResponce, error)
 	mustEmbedUnimplementedDeviceTrackerServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedDeviceTrackerServiceServer) GetDeviceGroups(context.Context, 
 }
 func (UnimplementedDeviceTrackerServiceServer) GetDevicesFromGroup(context.Context, *GetDevicesFromGroupRequest) (*GetDevicesFromGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevicesFromGroup not implemented")
+}
+func (UnimplementedDeviceTrackerServiceServer) CreateDeviceGroup(context.Context, *CreateDeviceGroupRequest) (*CreateDeviceGroupResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDeviceGroup not implemented")
 }
 func (UnimplementedDeviceTrackerServiceServer) mustEmbedUnimplementedDeviceTrackerServiceServer() {}
 
@@ -120,6 +134,24 @@ func _DeviceTrackerService_GetDevicesFromGroup_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceTrackerService_CreateDeviceGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDeviceGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceTrackerServiceServer).CreateDeviceGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/device_tracker.DeviceTrackerService/CreateDeviceGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceTrackerServiceServer).CreateDeviceGroup(ctx, req.(*CreateDeviceGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DeviceTrackerService_ServiceDesc is the grpc.ServiceDesc for DeviceTrackerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var DeviceTrackerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDevicesFromGroup",
 			Handler:    _DeviceTrackerService_GetDevicesFromGroup_Handler,
+		},
+		{
+			MethodName: "CreateDeviceGroup",
+			Handler:    _DeviceTrackerService_CreateDeviceGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

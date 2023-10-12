@@ -22,6 +22,7 @@ func accessibleRoles() map[string]auth.Role {
 	return map[string]auth.Role{
 		laptopServicePath + "GetDeviceGroups":     auth.User,
 		laptopServicePath + "GetDevicesFromGroup": auth.User,
+		laptopServicePath + "CreateDeviceGroup":   auth.User,
 	}
 }
 
