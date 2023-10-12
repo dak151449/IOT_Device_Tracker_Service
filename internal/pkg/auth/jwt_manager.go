@@ -1,15 +1,14 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-)
-
-const (
-	DefaultSecretKey = "secretkey"
+	"github.com/rs/zerolog/log"
 )
 
 type JWTManager struct {
@@ -23,12 +22,21 @@ type UserClaims struct {
 	Role     Role   `json:"role"`
 }
 
-func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
+func NewJWTManager() *JWTManager {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		log.Panic().Err(err).Msg("error random read")
+	}
+	secretKey := base64.StdEncoding.EncodeToString(randomBytes)
+	log.Debug().Msg(secretKey)
 	return &JWTManager{secretKey: secretKey,
-		tokenDuration: tokenDuration}
+		tokenDuration: 15 * time.Minute}
 }
 
-func (m *JWTManager) Generate(c jwt.Claims) (string, error) {
+func (m *JWTManager) Generate(c *UserClaims) (string, error) {
+	c.StandardClaims = jwt.StandardClaims{ExpiresAt: time.Now().Add(m.tokenDuration).Unix()}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
 	return token.SignedString([]byte(m.secretKey))
