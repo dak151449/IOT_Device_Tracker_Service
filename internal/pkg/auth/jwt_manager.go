@@ -3,7 +3,6 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -23,16 +22,16 @@ type UserClaims struct {
 	Role     Role   `json:"role"`
 }
 
-func NewJWTManager() *JWTManager {
+func NewJWTManager(tokenDuration time.Duration) *JWTManager {
 	randomBytes := make([]byte, 32)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		log.Panic().Err(err).Msg("error random read")
 	}
+
 	secretKey := base64.StdEncoding.EncodeToString(randomBytes)
-	log.Debug().Msg(secretKey)
 	return &JWTManager{secretKey: secretKey,
-		tokenDuration: 15 * time.Minute}
+		tokenDuration: tokenDuration}
 }
 
 func (m *JWTManager) Generate(c *UserClaims) (string, error) {
@@ -55,12 +54,12 @@ func (m *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 			return []byte(m.secretKey), nil
 		})
 	if err != nil {
-		return nil, fmt.Errorf("invalid token %w", err)
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*UserClaims)
 	if !ok {
-		return nil, errors.New("invalid token")
+		return nil, errors.New("unable to extract user claims")
 	}
 
 	return claims, nil

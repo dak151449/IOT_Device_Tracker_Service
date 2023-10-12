@@ -43,8 +43,9 @@ type Service interface {
 }
 
 func (a *App) Run(options []grpc.UnaryServerInterceptor, impl ...Service) error {
-	options = append(options, mw.LogResponseInterceptor)
-	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(options...))
+	opts := []grpc.UnaryServerInterceptor{mw.LogResponseInterceptor}
+	opts = append(opts, options...)
+	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(opts...))
 
 	for _, i := range impl {
 		i.RegisterGRPC(a.grpcServer)
