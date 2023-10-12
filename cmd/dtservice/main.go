@@ -8,7 +8,6 @@ import (
 	"iot-device-tracker-service/internal/app/dtservice"
 	"iot-device-tracker-service/internal/pkg/app"
 	"iot-device-tracker-service/internal/pkg/auth"
-	"iot-device-tracker-service/internal/pkg/config"
 	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/rs/zerolog"
@@ -44,12 +43,12 @@ func main() {
 	dtDao := dt_db.NewDAO(db)
 	authDao := auth_db.NewDAO(db)
 
-	jwtTokenDuration, err := config.GetJWTTokenDuration()
+	//jwtTokenDuration, err := config.GetJWTTokenDuration()
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't parse jwtTokenDuration")
 	}
 
-	jwtManager := auth.NewJWTManager(auth.DefaultSecretKey, jwtTokenDuration)
+	jwtManager := auth.NewJWTManager()
 	authInterceptor := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
 
 	if err = a.Run(

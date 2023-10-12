@@ -40,7 +40,7 @@ func (i *Interceptor) Unary() grpc.UnaryServerInterceptor {
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		log.Info().Msgf("--> unary interceptor: %s", info.FullMethod)
+		log.Debug().Msgf("unary interceptor: %s", info.FullMethod)
 		userID, err := i.authorize(ctx, info.FullMethod)
 		if err != nil {
 			return nil, err

@@ -2,20 +2,19 @@ package authservice_db
 
 import (
 	"context"
+	dao "iot-device-tracker-service/internal/app/dao/authservice"
+	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgconn"
 	"github.com/pkg/errors"
-
-	dao "iot-device-tracker-service/internal/app/dao/authservice"
-	"iot-device-tracker-service/internal/pkg/db"
 )
 
 type DAO struct {
 	db db.DB
 }
 
-var errUserAlreadyExists = errors.New("User with given username already exists")
+var ErrUserAlreadyExists = errors.New("User with given username already exists")
 var errDuplicateCode = "23505"
 
 func NewDAO(db db.DB) *DAO {
@@ -40,7 +39,7 @@ func (d *DAO) CreateUser(ctx context.Context, user *dao.User) (int64, error) {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == errDuplicateCode {
-				return 0, errUserAlreadyExists
+				return 0, ErrUserAlreadyExists
 			}
 		}
 
