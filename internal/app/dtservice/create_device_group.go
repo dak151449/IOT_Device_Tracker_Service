@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (i *Implementation) CreateDeviceGroup(ctx context.Context, req *dtapi.CreateDeviceGroupRequest) (*dtapi.CreateDeviceGroupResponce, error) {
+func (i *Implementation) CreateDeviceGroup(ctx context.Context, req *dtapi.CreateDeviceGroupRequest) (*dtapi.CreateDeviceGroupResponse, error) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
@@ -43,7 +43,7 @@ func (i *Implementation) CreateDeviceGroup(ctx context.Context, req *dtapi.Creat
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &dtapi.CreateDeviceGroupResponce{
+	return &dtapi.CreateDeviceGroupResponse{
 		Id: id,
 	}, nil
 }

@@ -17,12 +17,13 @@ import (
 )
 
 func accessibleRoles() map[string]auth.Role {
-	const laptopServicePath = "/device_tracker.DeviceTrackerService/"
+	const dtServicePath = "/device_tracker.DeviceTrackerService/"
 
 	return map[string]auth.Role{
-		laptopServicePath + "GetDeviceGroups":     auth.User,
-		laptopServicePath + "GetDevicesFromGroup": auth.User,
-		laptopServicePath + "CreateDeviceGroup":   auth.User,
+		dtServicePath + "GetDeviceGroups":     auth.User,
+		dtServicePath + "GetDevicesFromGroup": auth.User,
+		dtServicePath + "CreateDeviceGroup":   auth.User,
+		dtServicePath + "CreateDevice":        auth.User,
 	}
 }
 

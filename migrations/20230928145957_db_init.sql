@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     id SERIAL PRIMARY KEY NOT NULL,
-    username TEXT NOT NULL UNIQUE ,
+    username TEXT NOT NULL UNIQUE,
     password BYTEA NOT NULL,
     salt BYTEA NOT NULL,
     role INT NOT NULL,
@@ -30,10 +30,9 @@ CREATE TABLE devices (
     name TEXT NOT NULL,
     device_group_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
-    authentication_token TEXT NULL,
     status TEXT NOT NULL,
     last_activity_time TIMESTAMP NULL,
-    location_name TEXT NOT NULL,
+    location_name TEXT NULL,
     location_latitude DECIMAL NULL,
     location_longitude DECIMAL NULL,
     location_timestamp TIMESTAMP NULL,

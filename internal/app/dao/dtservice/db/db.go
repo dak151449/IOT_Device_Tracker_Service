@@ -77,3 +77,22 @@ func (d *DAO) CreateDeviceGroup(ctx context.Context, group *dao.DeviceGroup) (in
 
 	return id, nil
 }
+
+func (d *DAO) CreateDevice(ctx context.Context, device *dao.Device) (int64, error) {
+	var id int64
+	query, args, err := squirrel.Insert("devices").
+		Columns("name", "device_group_id", "status", "description").
+		Values(device.Name, device.GroupID, device.Status, device.Description).
+		Suffix("RETURNING id").
+		PlaceholderFormat(squirrel.Dollar).ToSql()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to build SQL")
+	}
+
+	err = d.db.ExecQueryRow(ctx, query, args...).Scan(&id)
+	if err != nil {
+		return 0, errors.Wrap(err, "db.ExecQueryRow error")
+	}
+
+	return id, nil
+}

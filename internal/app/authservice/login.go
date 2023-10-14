@@ -21,7 +21,7 @@ func (i *Implementation) Login(ctx context.Context, req *authapi.LoginRequest) (
 	}
 
 	if user == nil || !isCorrectPassword(user, req.GetPassword()) {
-		return nil, status.Error(codes.NotFound, "incorrect username/password")
+		return nil, status.Error(codes.NotFound, "incorrect password")
 	}
 
 	token, err := i.jwtManager.Generate(getClaims(user))
