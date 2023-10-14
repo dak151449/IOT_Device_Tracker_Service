@@ -58,3 +58,41 @@ func (d *DAO) GetDevicesByGroupID(ctx context.Context, userID int64) ([]dao.Devi
 
 	return devices, nil
 }
+
+func (d *DAO) CreateDeviceGroup(ctx context.Context, group *dao.DeviceGroup) (int64, error) {
+	var id int64
+	query, args, err := squirrel.Insert("device_groups").
+		Columns("name", "user_id", "status", "description").
+		Values(group.Name, group.UserID, group.Status, group.Description).
+		Suffix("RETURNING id").
+		PlaceholderFormat(squirrel.Dollar).ToSql()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to build SQL")
+	}
+
+	err = d.db.ExecQueryRow(ctx, query, args...).Scan(&id)
+	if err != nil {
+		return 0, errors.Wrap(err, "db.ExecQueryRow error")
+	}
+
+	return id, nil
+}
+
+func (d *DAO) CreateDevice(ctx context.Context, device *dao.Device) (int64, error) {
+	var id int64
+	query, args, err := squirrel.Insert("devices").
+		Columns("name", "device_group_id", "status", "description").
+		Values(device.Name, device.GroupID, device.Status, device.Description).
+		Suffix("RETURNING id").
+		PlaceholderFormat(squirrel.Dollar).ToSql()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to build SQL")
+	}
+
+	err = d.db.ExecQueryRow(ctx, query, args...).Scan(&id)
+	if err != nil {
+		return 0, errors.Wrap(err, "db.ExecQueryRow error")
+	}
+
+	return id, nil
+}

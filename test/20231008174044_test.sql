@@ -1,11 +1,12 @@
 -- +goose Up
-INSERT INTO users (username, password, salt, email, info)
+INSERT INTO users (username, password, salt, email, info, role)
 SELECT
         'User ' || generate_series,
         'password' || generate_series,
         'salt' || generate_series,
         'user' || generate_series || '@test.com',
-        'User info ' || generate_series
+        'User info ' || generate_series,
+        '1'
 FROM generate_series(1, 10);
 
 INSERT INTO device_groups (name, user_id, status, created_at, description)

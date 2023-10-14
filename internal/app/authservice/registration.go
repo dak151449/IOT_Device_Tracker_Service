@@ -20,13 +20,21 @@ const (
 	minLenPassword = 4
 )
 
+const (
+	scryptN      = 1 << 15
+	scryptR      = 8
+	scryptP      = 1
+	scryptKeyLen = 32
+	saltSize     = 32
+)
+
 func (i *Implementation) Registration(ctx context.Context, req *authapi.RegistrationRequest) (*authapi.EmptyResponse, error) {
 	if utf8.RuneCountInString(req.GetUsername()) < minLenLogin {
-		return nil, status.Error(codes.InvalidArgument, "invalid login")
+		return nil, status.Errorf(codes.InvalidArgument, "login must be at least %d characters", minLenLogin)
 	}
 
 	if utf8.RuneCountInString(req.GetPassword()) < minLenPassword {
-		return nil, status.Error(codes.InvalidArgument, "invalid password")
+		return nil, status.Errorf(codes.InvalidArgument, "password must be at least %d characters", minLenPassword)
 	}
 
 	randomBytes, hashedP, err := generateHash(req.GetPassword())
@@ -49,16 +57,16 @@ func (i *Implementation) Registration(ctx context.Context, req *authapi.Registra
 }
 
 func generateHash(password string) ([]byte, []byte, error) {
-	randomBytes := make([]byte, 32)
-	_, err := rand.Read(randomBytes)
+	salt := make([]byte, saltSize)
+	_, err := rand.Read(salt)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "error generate hash salt")
+		return nil, nil, errors.Wrap(err, "error generating salt")
 	}
 
-	hashedP, err := scrypt.Key([]byte(password), randomBytes, 1<<15, 8, 1, 32)
+	hashedPassword, err := scrypt.Key([]byte(password), salt, scryptN, scryptR, scryptP, scryptKeyLen)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "error generate hash password")
+		return nil, nil, errors.Wrap(err, "error generating password hash")
 	}
 
-	return randomBytes, hashedP, nil
+	return salt, hashedPassword, nil
 }

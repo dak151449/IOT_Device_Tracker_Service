@@ -3,11 +3,10 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
@@ -16,26 +15,20 @@ type JWTManager struct {
 	tokenDuration time.Duration
 }
 
-type UserClaims struct {
-	jwt.StandardClaims
-	UserName string `json:"username"`
-	Role     Role   `json:"role"`
-}
-
-func NewJWTManager() *JWTManager {
+func NewJWTManager(tokenDuration time.Duration) *JWTManager {
 	randomBytes := make([]byte, 32)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		log.Panic().Err(err).Msg("error random read")
 	}
+
 	secretKey := base64.StdEncoding.EncodeToString(randomBytes)
-	log.Debug().Msg(secretKey)
 	return &JWTManager{secretKey: secretKey,
-		tokenDuration: 15 * time.Minute}
+		tokenDuration: tokenDuration}
 }
 
 func (m *JWTManager) Generate(c *UserClaims) (string, error) {
-	c.StandardClaims = jwt.StandardClaims{ExpiresAt: time.Now().Add(m.tokenDuration).Unix()}
+	c.StandardClaims.ExpiresAt = time.Now().Add(m.tokenDuration).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
@@ -54,12 +47,12 @@ func (m *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 			return []byte(m.secretKey), nil
 		})
 	if err != nil {
-		return nil, fmt.Errorf("invalid token %w", err)
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*UserClaims)
 	if !ok {
-		return nil, errors.New("invalid token")
+		return nil, errors.New("unable to extract user claims")
 	}
 
 	return claims, nil

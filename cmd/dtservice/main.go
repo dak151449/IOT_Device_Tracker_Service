@@ -8,6 +8,7 @@ import (
 	"iot-device-tracker-service/internal/app/dtservice"
 	"iot-device-tracker-service/internal/pkg/app"
 	"iot-device-tracker-service/internal/pkg/auth"
+	"iot-device-tracker-service/internal/pkg/config"
 	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/rs/zerolog"
@@ -15,17 +16,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-func accessibleRoles() map[string]auth.Role {
-	const laptopServicePath = "/device_tracker.DeviceTrackerService/"
-
-	return map[string]auth.Role{
-		laptopServicePath + "GetDeviceGroups":     auth.User,
-		laptopServicePath + "GetDevicesFromGroup": auth.User,
-	}
-}
-
 func main() {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	ctx := context.Background()
 
 	a, err := app.New()
@@ -39,21 +31,21 @@ func main() {
 	}
 	defer db.GetPool(ctx).Close()
 
-	dtDao := dt_db.NewDAO(db)
-	authDao := auth_db.NewDAO(db)
+	dtDAO := dt_db.NewDAO(db)
+	authDAO := auth_db.NewDAO(db)
 
-	//jwtTokenDuration, err := config.GetJWTTokenDuration()
+	jwtTokenDuration, err := config.GetJWTTokenDuration()
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't parse jwtTokenDuration")
 	}
 
-	jwtManager := auth.NewJWTManager()
-	authInterceptor := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
+	jwtManager := auth.NewJWTManager(jwtTokenDuration)
+	authInterceptor := auth.NewAuthInterceptor(jwtManager)
 
 	if err = a.Run(
 		[]grpc.UnaryServerInterceptor{authInterceptor.Unary()},
-		dtservice.NewDeviceTrackerService(dtDao),
-		authservice.NewAuthService(authDao, jwtManager)); err != nil {
+		dtservice.NewDeviceTrackerService(dtDAO),
+		authservice.NewAuthService(authDAO, jwtManager)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
 }

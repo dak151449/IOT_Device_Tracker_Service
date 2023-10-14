@@ -8,11 +8,11 @@ import "google/protobuf/timestamp.proto";
 service DeviceTrackerService {
 	rpc GetDeviceGroups(GetDeviceGroupsRequest) returns (GetDeviceGroupsResponse) {}
 	rpc GetDevicesFromGroup(GetDevicesFromGroupRequest) returns (GetDevicesFromGroupResponse) {}
+	rpc CreateDeviceGroup(CreateDeviceGroupRequest) returns (CreateDeviceGroupResponse) {}
+	rpc CreateDevice(CreateDeviceRequest) returns (CreateDeviceResponse) {}
 }
 
-message GetDeviceGroupsRequest {
-	int64 user_id = 1;
-}
+message GetDeviceGroupsRequest {}
 
 message DeviceGroupData {
 	int64 id = 1;
@@ -40,4 +40,25 @@ message DeviceData {
 
 message GetDevicesFromGroupResponse {
 	repeated DeviceData devices = 1;
+}
+
+message CreateDeviceGroupRequest {
+	string name = 1;
+	string status = 2;
+	string description = 3;
+}
+
+message CreateDeviceGroupResponse {
+	int64 id = 1;
+}
+
+message CreateDeviceRequest {
+	int64 group_id = 1;
+	string name = 2;
+	string status = 3;
+	string description = 4;
+}
+
+message CreateDeviceResponse {
+	int64 id = 1;
 }
