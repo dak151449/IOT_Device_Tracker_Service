@@ -2,14 +2,27 @@ package main
 
 import (
 	"context"
-	dtservice_db "iot-device-tracker-service/internal/app/dao/dtservice/db"
+	"iot-device-tracker-service/internal/app/authservice"
+	auth_db "iot-device-tracker-service/internal/app/dao/authservice/db"
+	dt_db "iot-device-tracker-service/internal/app/dao/dtservice/db"
 	"iot-device-tracker-service/internal/app/dtservice"
 	"iot-device-tracker-service/internal/pkg/app"
+	"iot-device-tracker-service/internal/pkg/auth"
 	"iot-device-tracker-service/internal/pkg/db"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
 )
+
+func accessibleRoles() map[string]auth.Role {
+	const laptopServicePath = "/device_tracker.DeviceTrackerService/"
+
+	return map[string]auth.Role{
+		laptopServicePath + "GetDeviceGroups":     auth.User,
+		laptopServicePath + "GetDevicesFromGroup": auth.User,
+	}
+}
 
 func main() {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -26,9 +39,21 @@ func main() {
 	}
 	defer db.GetPool(ctx).Close()
 
-	dao := dtservice_db.NewDAO(db)
+	dtDao := dt_db.NewDAO(db)
+	authDao := auth_db.NewDAO(db)
 
-	if err = a.Run(dtservice.NewDeviceTrackerService(dao)); err != nil {
+	//jwtTokenDuration, err := config.GetJWTTokenDuration()
+	if err != nil {
+		log.Fatal().Err(err).Msg("can't parse jwtTokenDuration")
+	}
+
+	jwtManager := auth.NewJWTManager()
+	authInterceptor := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
+
+	if err = a.Run(
+		[]grpc.UnaryServerInterceptor{authInterceptor.Unary()},
+		dtservice.NewDeviceTrackerService(dtDao),
+		authservice.NewAuthService(authDao, jwtManager)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
 }

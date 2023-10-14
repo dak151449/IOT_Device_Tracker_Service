@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
-	"iot-device-tracker-service/internal/config"
 	"iot-device-tracker-service/internal/pkg/app/mw"
+	"iot-device-tracker-service/internal/pkg/config"
 	"net"
 	"os"
 	"os/signal"
@@ -42,8 +42,9 @@ type Service interface {
 	RegisterGRPC(*grpc.Server)
 }
 
-func (a *App) Run(impl ...Service) error {
-	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(mw.LogResponseInterceptor))
+func (a *App) Run(options []grpc.UnaryServerInterceptor, impl ...Service) error {
+	options = append(options, mw.LogResponseInterceptor)
+	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(options...))
 
 	for _, i := range impl {
 		i.RegisterGRPC(a.grpcServer)

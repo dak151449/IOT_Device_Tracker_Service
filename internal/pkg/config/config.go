@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -13,7 +14,8 @@ import (
 type configKey string
 
 const (
-	GrpcPORT = configKey("GRPC_PORT")
+	GrpcPORT         = configKey("GRPC_PORT")
+	JWTTokenDuration = configKey("JWT_TOKEN_DURATION")
 )
 
 type PostgresConfig struct {
@@ -71,4 +73,14 @@ func GetPostgresConfig() *PostgresConfig {
 	}
 
 	return cfg
+}
+
+func GetJWTTokenDuration() (time.Duration, error) {
+	tokenDuration := os.Getenv(string(JWTTokenDuration))
+	tokenDurationTime, err := time.ParseDuration(tokenDuration)
+	if err != nil {
+		return time.Duration(0), err
+	}
+
+	return tokenDurationTime, nil
 }

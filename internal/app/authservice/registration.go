@@ -1,0 +1,64 @@
+package authservice
+
+import (
+	"context"
+	"crypto/rand"
+	auth_dao "iot-device-tracker-service/internal/app/dao/authservice"
+	auth_db "iot-device-tracker-service/internal/app/dao/authservice/db"
+	"iot-device-tracker-service/internal/pkg/auth"
+	authapi "iot-device-tracker-service/pkg/api/auth_service"
+	"unicode/utf8"
+
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/scrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+const (
+	minLenLogin    = 4
+	minLenPassword = 4
+)
+
+func (i *Implementation) Registration(ctx context.Context, req *authapi.RegistrationRequest) (*authapi.EmptyResponse, error) {
+	if utf8.RuneCountInString(req.GetUsername()) < minLenLogin {
+		return nil, status.Error(codes.InvalidArgument, "invalid login")
+	}
+
+	if utf8.RuneCountInString(req.GetPassword()) < minLenPassword {
+		return nil, status.Error(codes.InvalidArgument, "invalid password")
+	}
+
+	randomBytes, hashedP, err := generateHash(req.GetPassword())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	user := auth_dao.User{UserName: req.GetUsername(), HashedPassword: hashedP, Role: int(auth.User), Salt: randomBytes}
+
+	_, err = i.dao.CreateUser(ctx, &user)
+	if err != nil {
+		if errors.Is(err, auth_db.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &authapi.EmptyResponse{}, nil
+}
+
+func generateHash(password string) ([]byte, []byte, error) {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "error generate hash salt")
+	}
+
+	hashedP, err := scrypt.Key([]byte(password), randomBytes, 1<<15, 8, 1, 32)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "error generate hash password")
+	}
+
+	return randomBytes, hashedP, nil
+}
