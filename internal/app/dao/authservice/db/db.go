@@ -14,7 +14,7 @@ type DAO struct {
 	db db.DB
 }
 
-var ErrUserAlreadyExists = errors.New("User with given username already exists")
+var ErrUserAlreadyExists = errors.New("user with given name already exists")
 var errDuplicateCode = "23505"
 
 func NewDAO(db db.DB) *DAO {

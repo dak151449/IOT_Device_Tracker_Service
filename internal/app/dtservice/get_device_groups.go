@@ -2,6 +2,7 @@ package dtservice
 
 import (
 	"context"
+	"iot-device-tracker-service/internal/pkg/auth"
 	dtapi "iot-device-tracker-service/pkg/api/device_tracker"
 
 	"google.golang.org/grpc/codes"
@@ -9,9 +10,9 @@ import (
 )
 
 func (i *Implementation) GetDeviceGroups(ctx context.Context, _ *dtapi.GetDeviceGroupsRequest) (*dtapi.GetDeviceGroupsResponse, error) {
-	userID, err := getUserIDFromContext(ctx)
+	userID, err := auth.CheckUserRole(ctx, auth.User)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
+		return nil, err
 	}
 
 	groups, err := i.dao.GetGroupsByUserID(ctx, userID)

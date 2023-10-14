@@ -16,17 +16,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-func accessibleRoles() map[string]auth.Role {
-	const dtServicePath = "/device_tracker.DeviceTrackerService/"
-
-	return map[string]auth.Role{
-		dtServicePath + "GetDeviceGroups":     auth.User,
-		dtServicePath + "GetDevicesFromGroup": auth.User,
-		dtServicePath + "CreateDeviceGroup":   auth.User,
-		dtServicePath + "CreateDevice":        auth.User,
-	}
-}
-
 func main() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	ctx := context.Background()
@@ -42,8 +31,8 @@ func main() {
 	}
 	defer db.GetPool(ctx).Close()
 
-	dtDao := dt_db.NewDAO(db)
-	authDao := auth_db.NewDAO(db)
+	dtDAO := dt_db.NewDAO(db)
+	authDAO := auth_db.NewDAO(db)
 
 	jwtTokenDuration, err := config.GetJWTTokenDuration()
 	if err != nil {
@@ -51,12 +40,12 @@ func main() {
 	}
 
 	jwtManager := auth.NewJWTManager(jwtTokenDuration)
-	authInterceptor := auth.NewAuthInterceptor(jwtManager, accessibleRoles())
+	authInterceptor := auth.NewAuthInterceptor(jwtManager)
 
 	if err = a.Run(
 		[]grpc.UnaryServerInterceptor{authInterceptor.Unary()},
-		dtservice.NewDeviceTrackerService(dtDao),
-		authservice.NewAuthService(authDao, jwtManager)); err != nil {
+		dtservice.NewDeviceTrackerService(dtDAO),
+		authservice.NewAuthService(authDAO, jwtManager)); err != nil {
 		log.Fatal().Err(err).Msg("can't run app")
 	}
 }

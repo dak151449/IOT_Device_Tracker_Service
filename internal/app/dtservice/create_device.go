@@ -3,6 +3,7 @@ package dtservice
 import (
 	"context"
 	dao "iot-device-tracker-service/internal/app/dao/dtservice"
+	"iot-device-tracker-service/internal/pkg/auth"
 	dtapi "iot-device-tracker-service/pkg/api/device_tracker"
 
 	"google.golang.org/grpc/codes"
@@ -10,27 +11,17 @@ import (
 )
 
 func (i *Implementation) CreateDevice(ctx context.Context, req *dtapi.CreateDeviceRequest) (*dtapi.CreateDeviceResponse, error) {
-	userID, err := getUserIDFromContext(ctx)
+	userID, err := auth.CheckUserRole(ctx, auth.User)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
+		return nil, err
 	}
 
 	if req.GetName() == "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid device name")
 	}
 
-	groups, err := i.dao.GetGroupsByUserID(ctx, userID)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	groupIDs := make(map[int64]struct{}, len(groups))
-	for _, v := range groups {
-		groupIDs[v.ID] = struct{}{}
-	}
-
-	if _, ok := groupIDs[req.GetGroupId()]; !ok {
-		return nil, status.Error(codes.NotFound, "device group not found")
+	if err = i.checkGroupExistence(ctx, userID, req.GetGroupId()); err != nil {
+		return nil, err
 	}
 
 	devices, err := i.dao.GetDevicesByGroupID(ctx, req.GetGroupId())

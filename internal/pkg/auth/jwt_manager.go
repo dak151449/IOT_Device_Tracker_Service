@@ -3,23 +3,16 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
 type JWTManager struct {
 	secretKey     string
 	tokenDuration time.Duration
-}
-
-type UserClaims struct {
-	jwt.StandardClaims
-	UserID   int64  `json:"id"`
-	UserName string `json:"username"`
-	Role     Role   `json:"role"`
 }
 
 func NewJWTManager(tokenDuration time.Duration) *JWTManager {
@@ -35,7 +28,7 @@ func NewJWTManager(tokenDuration time.Duration) *JWTManager {
 }
 
 func (m *JWTManager) Generate(c *UserClaims) (string, error) {
-	c.StandardClaims = jwt.StandardClaims{ExpiresAt: time.Now().Add(m.tokenDuration).Unix()}
+	c.StandardClaims.ExpiresAt = time.Now().Add(m.tokenDuration).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
